@@ -120,6 +120,7 @@ public final class MainActivity extends Activity {
         timerLayout.leftMargin = Ui.dp(this, 10);
         tools.addView(timer, timerLayout);
         content.addView(tools, Ui.matchWrap(this, 18));
+        StoreInfo.addButton(this, content);
 
         LinearLayout header = Ui.row(this);
         header.setGravity(Gravity.CENTER_VERTICAL);
