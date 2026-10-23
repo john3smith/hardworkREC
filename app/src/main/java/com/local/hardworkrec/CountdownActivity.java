@@ -59,16 +59,17 @@ public final class CountdownActivity extends Activity {
         }
         getWindow().setStatusBarColor(Ui.BG);
         getWindow().setNavigationBarColor(Ui.BG);
+        android.widget.ScrollView scroll=new android.widget.ScrollView(this);scroll.setFillViewport(true);scroll.setBackgroundColor(Ui.BG);Ui.applySystemInsets(scroll,true);
         LinearLayout root = Ui.column(this);
         root.setPadding(Ui.dp(this, 22), Ui.dp(this, 24), Ui.dp(this, 22), Ui.dp(this, 25));
         root.setBackgroundColor(Ui.BG);
-        Ui.applySystemInsets(root, true);
-        setContentView(root);
 
-        TextView back = Ui.text(this, "←  메인 화면", 15, Ui.GREEN, true);
+        scroll.addView(root);setContentView(scroll);
+
+        TextView back = Ui.back(this, "메인 화면");
         back.setOnClickListener(v -> finish());
-        root.addView(back, Ui.matchWrap(this, 28));
-        root.addView(Ui.text(this, "운동 카운트다운", 30, Ui.INK, true), Ui.matchWrap(this, 8));
+        root.addView(back, Ui.matchWrap(this, 14));
+        root.addView(Ui.text(this, "나만의 휴식 타이머", 28, Ui.INK, true), Ui.matchWrap(this, 8));
         root.addView(Ui.text(this, "기본 60초 · 원형 버튼을 눌러 시작하거나 일시정지하세요", 15, Ui.MUTED, false), Ui.matchWrap(this, 24));
 
         LinearLayout settings = Ui.card(this);
@@ -80,7 +81,7 @@ public final class CountdownActivity extends Activity {
         timeInput.setTextColor(Ui.INK);
         timeInput.setHint("예: 90");
         timeInput.setFilters(new InputFilter[]{new InputFilter.LengthFilter(4)});
-        timeInput.setBackground(Ui.stroke(Ui.WHITE, Ui.BORDER, 13, this));
+        timeInput.setBackground(Ui.shape(Ui.BG,14,this));
         timeInput.setPadding(Ui.dp(this, 15), 0, Ui.dp(this, 15), 0);
         timeInput.setText(state == null ? Integer.toString(durationSeconds) : state.getString("timeInput", Integer.toString(durationSeconds)));
         settings.addView(timeInput, new LinearLayout.LayoutParams(-1, Ui.dp(this, 54)));
@@ -88,33 +89,35 @@ public final class CountdownActivity extends Activity {
 
         LinearLayout middle = Ui.column(this);
         middle.setGravity(Gravity.CENTER);
-        root.addView(middle, new LinearLayout.LayoutParams(-1, 0, 1));
+        middle.setMinimumHeight(Ui.dp(this,280));root.addView(middle, Ui.matchWrap(this,16));
         circle = Ui.column(this);
         circle.setGravity(Gravity.CENTER);
         GradientDrawable background = new GradientDrawable();
         background.setShape(GradientDrawable.OVAL);
-        background.setColor(Ui.GREEN);
+        background.setColors(new int[]{Ui.INK,0xff294c57});background.setOrientation(GradientDrawable.Orientation.TL_BR);background.setStroke(Ui.dp(this,6),0xffdce6e4);
         circle.setBackground(background);
-        circle.setElevation(Ui.dp(this, 8));
+        circle.setElevation(Ui.dp(this, 2));circle.setFocusable(true);
         display = Ui.text(this, format((int) Math.ceil(remainingMs / 1000.0)), 68, Ui.WHITE, true);
         display.setGravity(Gravity.CENTER);
+        display.setMaxLines(1);display.setAutoSizeTextTypeUniformWithConfiguration(30,68,1,android.util.TypedValue.COMPLEX_UNIT_SP);display.setFontFeatureSettings("tnum");
         circle.addView(display);
-        circleHint = Ui.text(this, "탭하여 시작", 16, Ui.SOFT, true);
+        circleHint = Ui.text(this, "탭하여 시작", 14, Ui.LIME, true);
         circleHint.setGravity(Gravity.CENTER);
         circle.addView(circleHint);
         circle.setOnClickListener(v -> toggle());
-        middle.addView(circle, new LinearLayout.LayoutParams(Ui.dp(this, 270), Ui.dp(this, 270)));
+        middle.addView(circle, new LinearLayout.LayoutParams(Ui.dp(this, 238), Ui.dp(this, 238)));
 
         LinearLayout alerts = Ui.row(this);
+        alerts.setBackground(Ui.shape(Ui.WHITE,20,this));alerts.setPadding(Ui.dp(this,16),0,Ui.dp(this,16),0);
         vibrationSwitch = new Switch(this);
         vibrationSwitch.setText("진동");
-        vibrationSwitch.setTextColor(Ui.INK);
+        vibrationSwitch.setTextColor(Ui.INK);vibrationSwitch.setTextSize(14);vibrationSwitch.setPadding(0,0,Ui.dp(this,8),0);
         vibrationSwitch.setChecked(getPreferences(MODE_PRIVATE).getBoolean("vibration", true));
         vibrationSwitch.setOnCheckedChangeListener((button, enabled) -> getPreferences(MODE_PRIVATE).edit().putBoolean("vibration", enabled).apply());
         alerts.addView(vibrationSwitch, new LinearLayout.LayoutParams(0, Ui.dp(this, 52), 1));
         soundSwitch = new Switch(this);
         soundSwitch.setText("소리");
-        soundSwitch.setTextColor(Ui.INK);
+        soundSwitch.setTextColor(Ui.INK);soundSwitch.setTextSize(14);soundSwitch.setPadding(0,0,Ui.dp(this,8),0);
         soundSwitch.setChecked(getPreferences(MODE_PRIVATE).getBoolean("sound", false));
         soundSwitch.setOnCheckedChangeListener((button, enabled) -> getPreferences(MODE_PRIVATE).edit().putBoolean("sound", enabled).apply());
         alerts.addView(soundSwitch, new LinearLayout.LayoutParams(0, Ui.dp(this, 52), 1));

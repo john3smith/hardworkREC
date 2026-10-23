@@ -35,31 +35,33 @@ public final class CountActivity extends Activity {
         count = state == null ? Math.max(0, getIntent().getIntExtra("count", 0)) : state.getInt("count", 0);
         getWindow().setStatusBarColor(Ui.BG);
         getWindow().setNavigationBarColor(Ui.BG);
+        android.widget.ScrollView scroll=new android.widget.ScrollView(this);scroll.setFillViewport(true);scroll.setBackgroundColor(Ui.BG);Ui.applySystemInsets(scroll,true);
         LinearLayout root = Ui.column(this);
         root.setPadding(Ui.dp(this, 22), Ui.dp(this, 24), Ui.dp(this, 22), Ui.dp(this, 25));
         root.setBackgroundColor(Ui.BG);
-        Ui.applySystemInsets(root, false);
-        setContentView(root);
-        TextView back = Ui.text(this, "←  메인 화면", 15, Ui.GREEN, true);
+
+        scroll.addView(root);setContentView(scroll);
+        TextView back = Ui.back(this, "메인 화면");
         back.setOnClickListener(v -> finishCount());
-        root.addView(back, Ui.matchWrap(this, 28));
-        root.addView(Ui.text(this, "수동 횟수 카운트", 30, Ui.INK, true), Ui.matchWrap(this, 6));
+        root.addView(back, Ui.matchWrap(this, 14));
+        root.addView(Ui.text(this, "한 번 더, 카운트", 28, Ui.INK, true), Ui.matchWrap(this, 6));
         root.addView(Ui.text(this, "가운데 버튼을 누를 때마다 1회씩 올라갑니다", 15, Ui.MUTED, false));
 
         LinearLayout middle = Ui.column(this);
         middle.setGravity(Gravity.CENTER);
-        root.addView(middle, new LinearLayout.LayoutParams(-1, 0, 1));
+        middle.setMinimumHeight(Ui.dp(this,280));root.addView(middle, Ui.matchWrap(this,16));
         LinearLayout circle = Ui.column(this);
         circle.setGravity(Gravity.CENTER);
         GradientDrawable background = new GradientDrawable();
         background.setShape(GradientDrawable.OVAL);
-        background.setColor(Ui.GREEN);
+        background.setColors(new int[]{Ui.INK,0xff294c57});background.setOrientation(GradientDrawable.Orientation.TL_BR);background.setStroke(Ui.dp(this,6),0xffdce6e4);
         circle.setBackground(background);
-        circle.setElevation(Ui.dp(this, 8));
+        circle.setElevation(Ui.dp(this, 2));circle.setFocusable(true);
         number = Ui.text(this, Integer.toString(count), 76, Ui.WHITE, true);
         number.setGravity(Gravity.CENTER);
+        number.setMaxLines(1);number.setAutoSizeTextTypeUniformWithConfiguration(30,68,1,android.util.TypedValue.COMPLEX_UNIT_SP);number.setFontFeatureSettings("tnum");
         circle.addView(number);
-        TextView hint = Ui.text(this, "탭하여 +1", 16, Ui.SOFT, true);
+        TextView hint = Ui.text(this, "탭하여 +1", 14, Ui.LIME, true);
         hint.setGravity(Gravity.CENTER);
         circle.addView(hint);
         circle.setContentDescription("카운트 증가, 현재 " + count + "회");
@@ -70,19 +72,20 @@ public final class CountActivity extends Activity {
             circle.setContentDescription("카운트 증가, 현재 " + count + "회");
             playCountFeedback();
         });
-        middle.addView(circle, new LinearLayout.LayoutParams(Ui.dp(this, 270), Ui.dp(this, 270)));
+        middle.addView(circle, new LinearLayout.LayoutParams(Ui.dp(this, 238), Ui.dp(this, 238)));
 
         LinearLayout feedback = Ui.row(this);
+        feedback.setBackground(Ui.shape(Ui.WHITE,20,this));feedback.setPadding(Ui.dp(this,16),0,Ui.dp(this,16),0);
         vibrationSwitch = new Switch(this);
         vibrationSwitch.setText("진동");
-        vibrationSwitch.setTextColor(Ui.INK);
+        vibrationSwitch.setTextColor(Ui.INK);vibrationSwitch.setTextSize(14);vibrationSwitch.setPadding(0,0,Ui.dp(this,8),0);
         vibrationSwitch.setChecked(getPreferences(MODE_PRIVATE).getBoolean("vibration", true));
         vibrationSwitch.setOnCheckedChangeListener((button, enabled) ->
                 getPreferences(MODE_PRIVATE).edit().putBoolean("vibration", enabled).apply());
         feedback.addView(vibrationSwitch, new LinearLayout.LayoutParams(0, Ui.dp(this, 52), 1));
         soundSwitch = new Switch(this);
         soundSwitch.setText("소리");
-        soundSwitch.setTextColor(Ui.INK);
+        soundSwitch.setTextColor(Ui.INK);soundSwitch.setTextSize(14);soundSwitch.setPadding(0,0,Ui.dp(this,8),0);
         soundSwitch.setChecked(getPreferences(MODE_PRIVATE).getBoolean("sound", false));
         soundSwitch.setOnCheckedChangeListener((button, enabled) ->
                 getPreferences(MODE_PRIVATE).edit().putBoolean("sound", enabled).apply());
