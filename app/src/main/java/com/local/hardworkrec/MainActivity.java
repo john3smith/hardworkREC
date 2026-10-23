@@ -61,13 +61,13 @@ public final class MainActivity extends Activity {
         scroll.setFillViewport(true);
         scroll.setClipToPadding(false);
         content = Ui.column(this);
-        content.setPadding(Ui.dp(this, 22), Ui.dp(this, 27), Ui.dp(this, 22), Ui.dp(this, 28));
+        content.setPadding(Ui.dp(this, 22), Ui.dp(this, 20), Ui.dp(this, 22), Ui.dp(this, 28));
         scroll.addView(content);
         root.addView(scroll, new LinearLayout.LayoutParams(-1, 0, 1));
         bottomBar = Ui.row(this);
         bottomBar.setBackgroundColor(Ui.WHITE);
         bottomBar.setPadding(Ui.dp(this, 14), Ui.dp(this, 7), Ui.dp(this, 14), Ui.dp(this, 7));
-        root.addView(bottomBar, new LinearLayout.LayoutParams(-1, Ui.dp(this, 66)));
+        root.addView(bottomBar, new LinearLayout.LayoutParams(-1, Ui.dp(this, 76)));
         setContentView(root);
         render();
     }
@@ -101,53 +101,46 @@ public final class MainActivity extends Activity {
     }
 
     private void addTab(String label, int index) {
-        TextView view = Ui.text(this, label, 15, tab == index ? Ui.GREEN : Ui.MUTED, tab == index);
-        view.setGravity(Gravity.CENTER);
-        view.setBackground(tab == index ? Ui.shape(Ui.SOFT, 13, this) : Ui.shape(Ui.WHITE, 13, this));
-        view.setContentDescription(label + " 탭");
-        view.setOnClickListener(v -> { tab = index; render(); });
-        bottomBar.addView(view, new LinearLayout.LayoutParams(0, -1, 1));
+        LinearLayout item=Ui.column(this);item.setGravity(Gravity.CENTER);
+        int color=tab==index?Ui.INK:Ui.MUTED;
+        android.widget.ImageView icon=new android.widget.ImageView(this);
+        android.graphics.drawable.Drawable symbol=new Ui.Symbol(new String[]{"home","calendar","backup"}[index],color);
+        int size=Ui.dp(this,22);icon.setImageDrawable(symbol);LinearLayout.LayoutParams il=new LinearLayout.LayoutParams(size,size);il.bottomMargin=Ui.dp(this,6);item.addView(icon,il);TextView title=Ui.text(this,label,12,color,tab==index);title.setGravity(Gravity.CENTER);item.addView(title);
+        item.setBackground(Ui.touch(tab==index?Ui.LIME:Ui.WHITE,20,this));
+        item.setContentDescription(label+" 탭");item.setFocusable(true);item.setOnClickListener(v->{tab=index;render();});
+        LinearLayout.LayoutParams lp=new LinearLayout.LayoutParams(0,-1,1);lp.setMargins(Ui.dp(this,3),0,Ui.dp(this,3),0);bottomBar.addView(item,lp);
     }
 
     private void renderHome() {
-        LinearLayout tools = Ui.row(this);
-        TextView count = Ui.action(this, "카운트", false);
-        count.setOnClickListener(v -> startActivity(new Intent(this, CountActivity.class)));
-        tools.addView(count, new LinearLayout.LayoutParams(0, -2, 1));
-        TextView timer = Ui.action(this, "타이머", false);
-        timer.setOnClickListener(v -> startActivity(new Intent(this, CountdownActivity.class)));
-        LinearLayout.LayoutParams timerLayout = new LinearLayout.LayoutParams(0, -2, 1);
-        timerLayout.leftMargin = Ui.dp(this, 10);
-        tools.addView(timer, timerLayout);
-        content.addView(tools, Ui.matchWrap(this, 18));
-        StoreInfo.addButton(this, content);
+        List<WorkoutStore.Entry> today=store.entriesForDate(LocalDate.now());
+        LinearLayout header=Ui.row(this);
+        LinearLayout brand=Ui.column(this);brand.addView(Ui.text(this,"HARDWORK",19,Ui.INK,true));
+        TextView rec=Ui.text(this,"REC  /  나를 위한 운동 기록",10,Ui.MUTED,true);rec.setLetterSpacing(.08f);brand.addView(rec,Ui.matchWrap(this,0));
+        header.addView(brand,new LinearLayout.LayoutParams(0,-2,1));
+        TextView info=Ui.action(this,"",false);Ui.icon(info,"info",Ui.INK,21);info.setPadding(Ui.dp(this,13),0,0,0);info.setContentDescription("개인정보·권한 안내");info.setOnClickListener(v->StoreInfo.show(this));
+        header.addView(info,new LinearLayout.LayoutParams(Ui.dp(this,48),Ui.dp(this,48)));content.addView(header,Ui.matchWrap(this,24));
 
-        LinearLayout header = Ui.row(this);
-        header.setGravity(Gravity.CENTER_VERTICAL);
-        header.addView(Ui.text(this, "HARDWORK / REC", 13, Ui.GREEN, true),
-                new LinearLayout.LayoutParams(0, -2, 1));
-        TextView add = Ui.text(this, "+ 운동명 추가", 13, Ui.GREEN, true);
-        add.setGravity(Gravity.CENTER);
-        add.setPadding(Ui.dp(this, 10), Ui.dp(this, 8), Ui.dp(this, 10), Ui.dp(this, 8));
-        add.setBackground(Ui.shape(Ui.SOFT, 12, this));
-        add.setContentDescription("운동명 추가");
-        add.setOnClickListener(v -> showAddExercise());
-        header.addView(add);
-        content.addView(header, Ui.matchWrap(this, 16));
-        content.addView(Ui.text(this, "오늘도 한 걸음", 29, Ui.INK, true), Ui.matchWrap(this, 4));
-        content.addView(Ui.text(this, LocalDate.now().format(DAY_LABEL), 15, Ui.MUTED, false), Ui.matchWrap(this, 24));
+        LinearLayout hero=Ui.card(this);hero.setBackground(Ui.dark(this,28));hero.setPadding(Ui.dp(this,24),Ui.dp(this,24),Ui.dp(this,24),Ui.dp(this,24));
+        TextView date=Ui.text(this,LocalDate.now().format(DAY_LABEL),12,0xffd0dfdf,false);hero.addView(date,Ui.matchWrap(this,16));
+        hero.addView(Ui.text(this,"오늘의 나를,\n한 번 더 뛰어넘기.",27,Ui.WHITE,true),Ui.matchWrap(this,22));
+        LinearLayout stats=Ui.row(this);long seconds=0;for(WorkoutStore.Entry e:today)seconds+=e.durationSeconds;
+        Set<LocalDate> days=new HashSet<>();for(WorkoutStore.Entry e:store.entriesForMonth(YearMonth.now()))days.add(java.time.Instant.ofEpochMilli(e.recordedAt).atZone(java.time.ZoneId.systemDefault()).toLocalDate());
+        heroStat(stats,"오늘 기록",today.size()+"개");heroStat(stats,"운동 시간",String.format(Locale.KOREA,"%d분 %02d초",seconds/60,seconds%60));heroStat(stats,"이번 달",days.size()+"일");hero.addView(stats);
+        content.addView(hero,Ui.matchWrap(this,18));
 
-        TextView record = Ui.action(this, "＋  운동 기록하기", true);
-        record.setOnClickListener(v -> showWorkoutPopup());
-        content.addView(record, Ui.matchWrap(this, 25));
-
-        List<WorkoutStore.Entry> today = store.entriesForDate(LocalDate.now());
-        sectionTitle("오늘의 기록", today.size() + "개");
-        if (today.isEmpty()) {
-            content.addView(Ui.text(this, "아직 기록이 없습니다.", 14, Ui.MUTED, false));
-        } else {
-            for (int i = 0; i < today.size(); i++) addHomeEntryCard(today.get(i), i + 1);
-        }
+        LinearLayout tools=Ui.row(this);LinearLayout count=Ui.tool(this,"count","카운트","한 번의 탭, 한 번의 집중");count.setOnClickListener(v->startActivity(new Intent(this,CountActivity.class)));
+        tools.addView(count,new LinearLayout.LayoutParams(0,-2,1));LinearLayout timer=Ui.tool(this,"timer","타이머","다음 세트를 위한 휴식");timer.setOnClickListener(v->startActivity(new Intent(this,CountdownActivity.class)));
+        LinearLayout.LayoutParams tl=new LinearLayout.LayoutParams(0,-2,1);tl.leftMargin=Ui.dp(this,12);tools.addView(timer,tl);content.addView(tools,Ui.matchWrap(this,20));
+        TextView record=Ui.action(this,"운동 기록하기   ＋",true);record.setOnClickListener(v->showWorkoutPopup());content.addView(record,Ui.matchWrap(this,28));
+        LinearLayout section=Ui.row(this);section.addView(Ui.text(this,"오늘의 기록",20,Ui.INK,true),new LinearLayout.LayoutParams(0,-2,1));
+        TextView add=Ui.action(this,"＋ 운동명",false);add.setTextSize(12);add.setMinHeight(Ui.dp(this,48));add.setContentDescription("운동명 추가");add.setOnClickListener(v->showAddExercise());section.addView(add);content.addView(section,Ui.matchWrap(this,12));
+        if(today.isEmpty())Ui.empty(this,content,"작은 시작도 기록이 됩니다","운동명을 추가하고 첫 기록을 남겨보세요.");
+        else for(int i=0;i<today.size();i++)addHomeEntryCard(today.get(i),i+1);
+    }
+    private void heroStat(LinearLayout parent,String label,String value) {
+        LinearLayout stat=Ui.column(this);stat.setPadding(0,0,Ui.dp(this,8),0);stat.addView(Ui.text(this,label,11,0xffc1d1d5,false),Ui.matchWrap(this,7));
+        TextView number=Ui.text(this,value,19,Ui.LIME,true);number.setMaxLines(1);number.setAutoSizeTextTypeUniformWithConfiguration(11,19,1,android.util.TypedValue.COMPLEX_UNIT_SP);stat.addView(number);
+        parent.addView(stat,new LinearLayout.LayoutParams(0,-2,1));
     }
 
     private void showWorkoutPopup() {
@@ -228,9 +221,9 @@ public final class MainActivity extends Activity {
         nameInput.setImeOptions(EditorInfo.IME_ACTION_DONE);
         nameInput.setFilters(new InputFilter[]{new InputFilter.LengthFilter(60)});
         nameInput.setPadding(Ui.dp(this, 10), Ui.dp(this, 5), Ui.dp(this, 10), Ui.dp(this, 5));
-        nameInput.setBackground(Ui.stroke(Ui.WHITE, Ui.BORDER, 9, this));
+        nameInput.setBackground(Ui.shape(Ui.BG,12,this));
         nameInput.setContentDescription(number + "번째 운동명 수정");
-        LinearLayout.LayoutParams nameParams = new LinearLayout.LayoutParams(0, Ui.dp(this, 45), 1);
+        LinearLayout.LayoutParams nameParams = new LinearLayout.LayoutParams(0, Ui.dp(this, 48), 1);
         nameParams.leftMargin = Ui.dp(this, 8);
         nameParams.rightMargin = Ui.dp(this, 8);
         row.addView(nameInput, nameParams);
@@ -251,7 +244,7 @@ public final class MainActivity extends Activity {
         repsInput.setMaxLines(5);
         repsInput.setFilters(new InputFilter[]{new InputFilter.LengthFilter(500)});
         repsInput.setPadding(Ui.dp(this, 10), Ui.dp(this, 5), Ui.dp(this, 10), Ui.dp(this, 5));
-        repsInput.setBackground(Ui.stroke(Ui.WHITE, Ui.BORDER, 9, this));
+        repsInput.setBackground(Ui.shape(Ui.BG,12,this));
         repsInput.setContentDescription(number + "번째 횟수 바로 수정, 자동 저장");
         repsInput.addTextChangedListener(new TextWatcher() {
             @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
@@ -291,7 +284,7 @@ public final class MainActivity extends Activity {
     }
 
     private void renderCalendar() {
-        content.addView(Ui.text(this, "나의 운동 달력", 28, Ui.INK, true), Ui.matchWrap(this, 6));
+        content.addView(Ui.text(this, "쌓여가는 나의 꾸준함", 26, Ui.INK, true), Ui.matchWrap(this, 6));
         content.addView(Ui.text(this, "운동한 날을 한눈에 확인하세요", 14, Ui.MUTED, false), Ui.matchWrap(this, 25));
         LinearLayout card = Ui.card(this);
         LinearLayout header = Ui.row(this);
@@ -299,7 +292,7 @@ public final class MainActivity extends Activity {
         previous.setGravity(Gravity.CENTER);
         previous.setContentDescription("이전 달");
         previous.setOnClickListener(v -> { month = month.minusMonths(1); selectedDate = month.atDay(1); render(); });
-        header.addView(previous, new LinearLayout.LayoutParams(Ui.dp(this, 44), Ui.dp(this, 48)));
+        header.addView(previous, new LinearLayout.LayoutParams(Ui.dp(this, 48), Ui.dp(this, 48)));
         TextView title = Ui.text(this, month.format(MONTH_LABEL), 19, Ui.INK, true);
         title.setGravity(Gravity.CENTER);
         header.addView(title, new LinearLayout.LayoutParams(0, -2, 1));
@@ -307,7 +300,7 @@ public final class MainActivity extends Activity {
         next.setGravity(Gravity.CENTER);
         next.setContentDescription("다음 달");
         next.setOnClickListener(v -> { month = month.plusMonths(1); selectedDate = month.atDay(1); render(); });
-        header.addView(next, new LinearLayout.LayoutParams(Ui.dp(this, 44), Ui.dp(this, 48)));
+        header.addView(next, new LinearLayout.LayoutParams(Ui.dp(this, 48), Ui.dp(this, 48)));
         card.addView(header, Ui.matchWrap(this, 14));
 
         LinearLayout weekdays = Ui.row(this);
@@ -333,14 +326,14 @@ public final class MainActivity extends Activity {
                 if (day < 1 || day > month.lengthOfMonth()) continue;
                 LocalDate date = month.atDay(day);
                 boolean selected = date.equals(selectedDate);
-                cell.setBackground(Ui.shape(selected ? Ui.SOFT : Ui.WHITE, 12, this));
-                TextView number = Ui.text(this, Integer.toString(day), 16, selected ? Ui.GREEN : Ui.INK, selected);
+                cell.setBackground(Ui.touch(selected ? Ui.INK : Ui.WHITE, 14, this));
+                TextView number = Ui.text(this, Integer.toString(day), 16, selected ? Ui.WHITE : Ui.INK, selected);
                 number.setGravity(Gravity.CENTER);
                 cell.addView(number);
                 View dot = new View(this);
                 GradientDrawable circle = new GradientDrawable();
                 circle.setShape(GradientDrawable.OVAL);
-                circle.setColor(activeDays.contains(date) ? Ui.GREEN : Ui.WHITE);
+                circle.setColor(activeDays.contains(date) ? (selected ? Ui.LIME : Ui.GREEN) : (selected ? Ui.INK : Ui.WHITE));
                 dot.setBackground(circle);
                 LinearLayout.LayoutParams dotParams = new LinearLayout.LayoutParams(Ui.dp(this, 6), Ui.dp(this, 6));
                 dotParams.topMargin = Ui.dp(this, 4);
@@ -353,7 +346,7 @@ public final class MainActivity extends Activity {
         content.addView(card, Ui.matchWrap(this, 23));
         sectionTitle(selectedDate.format(DAY_LABEL), "");
         List<WorkoutStore.Entry> entries = store.entriesForDate(selectedDate);
-        if (entries.isEmpty()) content.addView(Ui.text(this, "이날의 운동 기록이 없습니다.", 14, Ui.MUTED, false));
+        if (entries.isEmpty()) Ui.empty(this,content,"쉬어가는 날도 괜찮아요","이날의 운동 기록이 없습니다.");
         else for (WorkoutStore.Entry entry : entries) addEntryCard(entry);
     }
 
@@ -361,7 +354,7 @@ public final class MainActivity extends Activity {
         content.addView(Ui.text(this, "기록 백업", 28, Ui.INK, true), Ui.matchWrap(this, 6));
         content.addView(Ui.text(this, "소중한 운동 기록을 파일로 보관하세요", 14, Ui.MUTED, false), Ui.matchWrap(this, 25));
         LinearLayout card = Ui.card(this);
-        card.addView(Ui.text(this, "Google Drive에 보관하기", 20, Ui.INK, true), Ui.matchWrap(this, 9));
+        card.addView(Ui.text(this, "기록을 안전하게 보관", 20, Ui.INK, true), Ui.matchWrap(this, 9));
         card.addView(Ui.text(this, "아래 버튼을 누른 뒤 저장 위치에서 Google Drive를 선택하세요. 운동명과 기록을 JSON 파일로 저장합니다.", 15, Ui.MUTED, false), Ui.matchWrap(this, 21));
         TextView backup = Ui.action(this, "백업 파일 저장", true);
         backup.setOnClickListener(v -> launchCreateBackup());

@@ -57,20 +57,20 @@ public final class RecordActivity extends Activity {
         scroll.addView(body);
         setContentView(scroll);
 
-        TextView back = Ui.text(this, "←  돌아가기", 15, Ui.GREEN, true);
+        TextView back = Ui.back(this,"돌아가기");
         back.setOnClickListener(v -> finish());
-        body.addView(back, Ui.matchWrap(this, 25));
+        body.addView(back, Ui.matchWrap(this, 14));
         body.addView(Ui.text(this, editingEntry == null ? "운동 기록하기" : "운동 기록 수정", 29, Ui.INK, true), Ui.matchWrap(this, 7));
         body.addView(Ui.text(this, editingEntry == null ? "오늘의 운동을 남겨보세요" : "저장한 기록을 고쳐보세요", 15, Ui.MUTED, false), Ui.matchWrap(this, 25));
 
         LinearLayout form = Ui.card(this);
         form.addView(Ui.text(this, "운동명", 15, Ui.INK, true), Ui.matchWrap(this, 10));
-        exerciseSpinner = new Spinner(this);
+        exerciseSpinner = new Spinner(this);exerciseSpinner.setContentDescription("운동 선택");
         ArrayList<String> names = new ArrayList<>();
         for (WorkoutStore.Exercise exercise : exercises) names.add(exercise.name);
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, names);
         exerciseSpinner.setAdapter(adapter);
-        exerciseSpinner.setBackground(Ui.stroke(Ui.WHITE, Ui.BORDER, 13, this));
+        exerciseSpinner.setBackground(Ui.shape(Ui.BG,14,this));
         exerciseSpinner.setPadding(Ui.dp(this, 13), 0, Ui.dp(this, 13), 0);
         form.addView(exerciseSpinner, new LinearLayout.LayoutParams(-1, Ui.dp(this, 54)));
         long selectedId = editingEntry == null ? getIntent().getLongExtra("exerciseId", -1) : editingEntry.exerciseId;
@@ -78,7 +78,7 @@ public final class RecordActivity extends Activity {
 
         form.addView(Ui.gap(this, 22));
         form.addView(Ui.text(this, "횟수", 15, Ui.INK, true), Ui.matchWrap(this, 9));
-        repsInput = new EditText(this);
+        repsInput = new EditText(this);repsInput.setContentDescription("운동 횟수 입력");
         repsInput.setHint("예: 10회, 12회, 8회");
         repsInput.setTextSize(18);
         repsInput.setTextColor(Ui.INK);
@@ -87,7 +87,7 @@ public final class RecordActivity extends Activity {
         repsInput.setMinLines(3);
         repsInput.setGravity(Gravity.TOP);
         repsInput.setPadding(Ui.dp(this, 15), Ui.dp(this, 12), Ui.dp(this, 15), Ui.dp(this, 12));
-        repsInput.setBackground(Ui.stroke(Ui.WHITE, Ui.BORDER, 13, this));
+        repsInput.setBackground(Ui.shape(Ui.BG,14,this));
         repsInput.setFilters(new InputFilter[]{new InputFilter.LengthFilter(500)});
         form.addView(repsInput, new LinearLayout.LayoutParams(-1, -2));
         form.addView(Ui.gap(this, 24));
@@ -133,7 +133,7 @@ public final class RecordActivity extends Activity {
 
     private EditText numberInput(String hint) {
         EditText input = new EditText(this);
-        input.setSingleLine(true);
+        input.setSingleLine(true);input.setContentDescription("운동 시간 입력");
         input.setTextSize(18);
         input.setTextColor(Ui.INK);
         input.setHintTextColor(Ui.MUTED);
@@ -141,7 +141,7 @@ public final class RecordActivity extends Activity {
         input.setInputType(InputType.TYPE_CLASS_NUMBER);
         input.setPadding(Ui.dp(this, 15), 0, Ui.dp(this, 15), 0);
         input.setGravity(Gravity.CENTER_VERTICAL);
-        input.setBackground(Ui.stroke(Ui.WHITE, Ui.BORDER, 13, this));
+        input.setBackground(Ui.shape(Ui.BG,14,this));
         return input;
     }
 
