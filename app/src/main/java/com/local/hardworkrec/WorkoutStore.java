@@ -202,17 +202,17 @@ public final class WorkoutStore extends SQLiteOpenHelper {
         if (exerciseArray.length() > 50000 || entryArray.length() > 50000) throw new IllegalArgumentException("백업 항목이 너무 많습니다.");
         Set<String> names = new HashSet<>();
         List<Entry> entries = new ArrayList<>();
-        for (int i = 0; i < exerciseArray.length(); i++) names.add(validName(exerciseArray.getString(i)));
+        for (int i = 0; i < exerciseArray.length(); i++) names.add(validName(BackupStrings.text(exerciseArray.get(i))));
         for (int i = 0; i < entryArray.length(); i++) {
             JSONObject item = entryArray.getJSONObject(i);
-            String uuid = UUID.fromString(item.getString("uuid")).toString();
-            String name = validName(item.getString("exerciseName"));
+            String uuid = UUID.fromString(BackupStrings.text(item.get("uuid"))).toString();
+            String name = validName(BackupStrings.text(item.get("exerciseName")));
             String reps;
             if (schemaVersion == 1) {
                 int count = BackupNumbers.integer(item.get("reps"));
                 reps = count == 0 ? "" : Integer.toString(count);
             } else {
-                reps = item.getString("reps");
+                reps = BackupStrings.text(item.get("reps"));
             }
             int seconds = BackupNumbers.integer(item.get("durationSeconds"));
             long at = BackupNumbers.longInteger(item.get("recordedAt"));
