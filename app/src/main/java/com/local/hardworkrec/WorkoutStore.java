@@ -195,7 +195,7 @@ public final class WorkoutStore extends SQLiteOpenHelper {
     /** Merges a backup; repeated imports do not duplicate entries. No existing data is deleted. */
     public int importJson(String json) throws JSONException {
         JSONObject root = new JSONObject(json);
-        int schemaVersion = root.getInt("schemaVersion");
+        int schemaVersion = BackupNumbers.integer(root.get("schemaVersion"));
         if (schemaVersion != 1 && schemaVersion != 2) throw new IllegalArgumentException("지원하지 않는 백업 버전입니다.");
         JSONArray exerciseArray = root.getJSONArray("exercises");
         JSONArray entryArray = root.getJSONArray("entries");
@@ -207,9 +207,15 @@ public final class WorkoutStore extends SQLiteOpenHelper {
             JSONObject item = entryArray.getJSONObject(i);
             String uuid = UUID.fromString(item.getString("uuid")).toString();
             String name = validName(item.getString("exerciseName"));
-            String reps = schemaVersion == 1 ? (item.getInt("reps") == 0 ? "" : item.getString("reps")) : item.getString("reps");
-            int seconds = item.getInt("durationSeconds");
-            long at = item.getLong("recordedAt");
+            String reps;
+            if (schemaVersion == 1) {
+                int count = BackupNumbers.integer(item.get("reps"));
+                reps = count == 0 ? "" : Integer.toString(count);
+            } else {
+                reps = item.getString("reps");
+            }
+            int seconds = BackupNumbers.integer(item.get("durationSeconds"));
+            long at = BackupNumbers.longInteger(item.get("recordedAt"));
             if (at <= 0 || at > System.currentTimeMillis() + 86400000L) {
                 throw new IllegalArgumentException("백업 기록에 잘못된 값이 있습니다.");
             }
