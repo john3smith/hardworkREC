@@ -19,7 +19,6 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
@@ -412,14 +411,7 @@ public final class MainActivity extends Activity {
     private void restoreFrom(Uri uri) {
         try (InputStream stream = getContentResolver().openInputStream(uri)) {
             if (stream == null) throw new IllegalStateException("백업 파일을 열 수 없습니다.");
-            ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-            byte[] buffer = new byte[8192];
-            int read;
-            while ((read = stream.read(buffer)) != -1) {
-                if (bytes.size() + read > 10_000_000) throw new IllegalArgumentException("백업 파일이 너무 큽니다.");
-                bytes.write(buffer, 0, read);
-            }
-            int inserted = store.importJson(bytes.toString(StandardCharsets.UTF_8.name()));
+            int inserted = store.importJson(BackupInput.read(stream));
             backupStatus = "가져오기 완료 · 새 기록 " + inserted + "개";
             Toast.makeText(this, backupStatus, Toast.LENGTH_LONG).show();
             render();
