@@ -205,7 +205,7 @@ public final class WorkoutStore extends SQLiteOpenHelper {
         for (int i = 0; i < exerciseArray.length(); i++) names.add(validName(BackupStrings.text(exerciseArray.get(i))));
         for (int i = 0; i < entryArray.length(); i++) {
             JSONObject item = entryArray.getJSONObject(i);
-            String uuid = UUID.fromString(BackupStrings.text(item.get("uuid"))).toString();
+            String uuid = BackupUuids.canonical(item.get("uuid"));
             String name = validName(BackupStrings.text(item.get("exerciseName")));
             String reps;
             if (schemaVersion == 1) {
