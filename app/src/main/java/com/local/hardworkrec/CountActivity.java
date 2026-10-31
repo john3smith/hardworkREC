@@ -49,9 +49,9 @@ public final class CountActivity extends Activity {
 
         LinearLayout middle = Ui.column(this);
         middle.setGravity(Gravity.CENTER);
-        middle.setMinimumHeight(Ui.dp(this,280));root.addView(middle, Ui.matchWrap(this,16));
-        LinearLayout circle = Ui.column(this);
-        circle.setGravity(Gravity.CENTER);
+        middle.setPadding(Ui.dp(this, 8), Ui.dp(this, 12), Ui.dp(this, 8), Ui.dp(this, 12));
+        root.addView(middle, Ui.matchWrap(this, 16));
+        WorkoutCircle circle = new WorkoutCircle(this);
         GradientDrawable background = new GradientDrawable();
         background.setShape(GradientDrawable.OVAL);
         background.setColors(new int[]{Ui.INK,0xff294c57});background.setOrientation(GradientDrawable.Orientation.TL_BR);background.setStroke(Ui.dp(this,6),0xffdce6e4);
@@ -72,7 +72,7 @@ public final class CountActivity extends Activity {
             circle.setContentDescription("카운트 증가, 현재 " + count + "회");
             playCountFeedback();
         });
-        middle.addView(circle, new LinearLayout.LayoutParams(Ui.dp(this, 238), Ui.dp(this, 238)));
+        middle.addView(circle, new LinearLayout.LayoutParams(-1, -2));
 
         LinearLayout feedback = Ui.row(this);
         feedback.setBackground(Ui.shape(Ui.WHITE,20,this));feedback.setPadding(Ui.dp(this,16),0,Ui.dp(this,16),0);
