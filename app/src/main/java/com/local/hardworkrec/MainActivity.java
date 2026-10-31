@@ -394,10 +394,13 @@ public final class MainActivity extends Activity {
                 if (stream == null) throw new IllegalStateException("저장 위치를 열 수 없습니다.");
                 stream.write(store.exportJson().getBytes(StandardCharsets.UTF_8));
                 stream.flush();
-                backupStatus = "선택한 위치에 백업 파일을 저장했습니다.";
-                Toast.makeText(this, backupStatus, Toast.LENGTH_LONG).show();
-                render();
-            } catch (Exception ex) { showError("백업 실패", ex); }
+            } catch (Exception ex) {
+                showError("백업 실패", ex);
+                return;
+            }
+            backupStatus = "선택한 위치에 백업 파일을 저장했습니다.";
+            Toast.makeText(this, backupStatus, Toast.LENGTH_LONG).show();
+            render();
         } else if (requestCode == OPEN_BACKUP) {
             new AlertDialog.Builder(this)
                     .setTitle("백업 가져오기")
@@ -409,9 +412,13 @@ public final class MainActivity extends Activity {
     }
 
     private void restoreFrom(Uri uri) {
-        try (InputStream stream = getContentResolver().openInputStream(uri)) {
-            if (stream == null) throw new IllegalStateException("백업 파일을 열 수 없습니다.");
-            int inserted = store.importJson(BackupInput.read(stream));
+        try {
+            String json;
+            try (InputStream stream = getContentResolver().openInputStream(uri)) {
+                if (stream == null) throw new IllegalStateException("백업 파일을 열 수 없습니다.");
+                json = BackupInput.read(stream);
+            }
+            int inserted = store.importJson(json);
             backupStatus = "가져오기 완료 · 새 기록 " + inserted + "개";
             Toast.makeText(this, backupStatus, Toast.LENGTH_LONG).show();
             render();
